@@ -1,0 +1,183 @@
+package Codigo_3_direcciones;
+
+import java_cup.runtime.Symbol;
+
+parser code {:
+	public static void main(String args[]) throws Exception{
+		new parser(new Yylex(System.in)).parse();
+	}
+	
+	 public void syntax_error(Symbol s){ 
+        System.out.println("Error Sintáctico en la Línea " + (s.left + 1) +
+        " Posicion "+s.right+ ". No se esperaba este componente: " +s.value+"."); 
+    } 
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintáctico 
+     * en el que ya no es posible una recuperación de errores.
+     **/ 
+    public void unrecovered_syntax_error(Symbol s) { 
+        System.out.println("Error síntactico irrecuperable en la Línea " + 
+        (s.left+ 1)+ " Posicion "+s.right+". Componente " + s.value + 
+        " no reconocido."); 
+    }  
+	
+:}
+
+terminal PC;
+terminal DP;
+terminal IDE;
+terminal COMENTARIO;    
+terminal LLAVEA;
+terminal LLAVEC;
+terminal DIFERENCIA;
+terminal AND,OR,NOT,EQ,NE,IN,NI;
+terminal SET,PUTS,EXPR,AGRUPACION,IF,THEN,ELSE,ELSEIF,SWITCH,DEFAULT,WHILE,CONTINUE,BREAK,FOR,INCR,PROC,RETURN;   
+terminal PARIZQ;
+terminal PARDER;
+terminal CORCDER;
+terminal CORCIZQ;
+terminal TokenC3D POT, DIF, MAS,MENOS,MULTIPLICACION,DIVISION,PORCENTAJE,MENOR,MAYOR,MENORIGUAL,MAYORIGUAL,IGUAL,PD,PI;
+terminal String ID, NUM, DECIMAL;
+
+non terminal ini2, expr_list, expr_part, expr;
+non terminal NodoC3D ini, inicio, logico, relacional, expresion;
+
+precedence left MAS, MENOS;
+precedence left MULTIPLICACION, DIVISION;
+precedence right POT;
+precedence left IGUAL, MAYOR, MENOR, MAYORIGUAL, MENORIGUAL, DIF;
+precedence left AND, OR;
+
+start with ini;
+ini ::=  {: ControlC3D.reiniciar(); :} inicio:exp 
+                    {: 
+                        RESULT = exp;
+                        ControlC3D.agregarC3D("CODIGO FINAL: " + exp.getCad());
+                    :};
+
+inicio ::= logico:log
+			{:RESULT = log;:}
+;
+logico      ::=  logico:izq AND logico:der
+                    {: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " && " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+					
+                |logico:izq OR logico:der
+{: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " || " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+                | NOT logico:der
+{: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " =  " + " ! " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+                |relacional:rel {:RESULT = rel;:}
+                ;
+relacional  ::= expresion:izq IGUAL expresion:der
+                    {: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " == " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+				|expresion:izq DIF expresion:der
+{: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " != " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+                |expresion:izq MAYOR expresion:der
+{: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " > " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+                |expresion:izq MENOR expresion:der
+{: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " < " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+                |expresion:izq MAYORIGUAL expresion:der
+{: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " >= " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+                |expresion:izq MENORIGUAL expresion:der
+{: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " <= " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+                |expresion:exp {:RESULT = exp;:}
+                ;
+				
+expresion   ::= expresion:izq MAS expresion:der
+                    {: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " + " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+            |   expresion:izq MENOS expresion:der
+                    {: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " - " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+            |   expresion:izq MULTIPLICACION expresion:der
+                    {: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " * " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+            |   expresion:izq DIVISION expresion:der
+                    {: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " / " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}		
+			 |   expresion:izq POT expresion:der
+                    {: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = " + izq.getCad() + " ^ " + der.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+					
+            |   MENOS  expresion:exp 
+                    {: 
+                        String temp = ControlC3D.generaTemp();
+                        String c3d = temp + " = - " + exp.getCad() + ";\n";
+                        ControlC3D.agregarC3D(c3d);
+                        RESULT = new NodoC3D(temp); 
+                    :}
+            |   PI logico:exp PD   
+                    {: RESULT = exp; :}
+            |  	ID:id           
+                    {: RESULT = new NodoC3D(id); :}
+            |   NUM:num   
+                    {: RESULT = new NodoC3D(num); :}
+            |   DECIMAL:decimal 
+                    {: RESULT = new NodoC3D(decimal); :}
+            ;
+
