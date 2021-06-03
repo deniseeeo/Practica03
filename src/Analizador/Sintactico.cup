@@ -31,9 +31,6 @@ terminal CORCDER;
 terminal CORCIZQ;
 terminal PC;
 terminal DP;
-terminal COMA;
-terminal SL;
-terminal PUNTO;
 terminal NUM;
 terminal ID;
 terminal IDE;
@@ -64,28 +61,29 @@ non terminal OPERACIONES, OPERAR, SIMBRELACIONAL;
 non terminal ini, expr, expr_list, expr_part;
 
 start with ini;
+ini ::= expr_list;
 expr_list ::= expr expr_list | expr ;
-expr_part ::= expr PC ;
+expr_part ::= expr:e {: System.out.println(" = "+e+";"); :} ;
 
 expr  ::= COMENTARIO | IDE | SET01 | PUTS01 | AGRUPACIONES | IF01 | SWITCH01 | WHILE01 | FOR01 | PROC01 {: System.out.println("SENTENCIA CORRECTA"); :}
 ;
 
-VALOR ::= IDE ID |  NUM | ID
+VALOR ::= IDE ID | NUM | ID {: System.out.println("SENTENCIA CORRECTA"); :}
 ;
 
-SET01 ::= SET ID VALOR   {:System.out.println ("SENTENCIA CORRECTA");:}
+SET01 ::= SET ID VALOR  {: System.out.println("SENTENCIA CORRECTA"); :}
 ;
 
-PUTS01 ::= PUTS IDE ID   {:System.out.println ("SENTENCIA CORRECTA");:}
+AGRUPACIONES ::= SET ID AGRUPACION  | PUTS AGRUPACION | PUTS  LLAVEA expr_list LLAVEC | SET ID CORCIZQ EXPR OPERACIONES CORCDER {: System.out.println("SENTENCIA CORRECTA"); :}
+;
+
+PUTS01 ::= PUTS IDE ID  {: System.out.println("SENTENCIA CORRECTA"); :}
 ;
 
 OPERACIONES ::=  OPERAR MAS  OPERAR |  OPERAR MENOS  OPERAR | OPERAR MULTIPLICACION  OPERAR | OPERAR DIVISION OPERAR  | OPERAR PORCENTAJE  OPERAR {: System.out.println("SENTENCIA CORRECTA"); :}	
 ;
 
 OPERAR ::= IDE ID | NUM
-;
-
-AGRUPACIONES ::= SET ID AGRUPACION  | PUTS AGRUPACION	| PUTS  LLAVEA expr_list  LLAVEC | SET IDE CORCIZQ EXPR OPERACIONES CORCDER {: System.out.println("SENTENCIA CORRECTA"); :}
 ;
 
 SIMBRELACIONAL ::=  IGUAL | MAYOR | MENOR | MAYORIGUAL | MENORIGUAL | EQ | NE | IN | NI

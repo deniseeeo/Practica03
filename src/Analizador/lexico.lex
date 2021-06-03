@@ -11,15 +11,13 @@ import java_cup.runtime.Symbol;
 %char  
 %cup
 
-NUMERO = [0-9]+
+NUMERO = [0-9]
 LETRA=[a-zA-Z]
 BLANCO=[\n\ \t\b]
 ESPACIO = [ \t]+
 SALTO = [\n]+
 CADENA= (\\\"|[^\n\"]|\\{BLANCO}+\\)*
-AGRUPACION= [\"CADENA\" | \[CADENA] | \{CADENA\}]
-
-
+VARIABLE =({LETRA})({LETRA}|{NUMERO}|"_")*
 
 %%
 
@@ -36,18 +34,10 @@ AGRUPACION= [\"CADENA\" | \[CADENA] | \{CADENA\}]
 <YYINITIAL> "for"               { return (new Symbol(sym.FOR,yyline,yychar, yytext()));}
 <YYINITIAL> "if"                { return (new Symbol(sym.IF,yyline,yychar, yytext()));}
 <YYINITIAL> "return"            { return (new Symbol(sym.RETURN	,yyline,yychar, yytext()));}
-<YYINITIAL> {NUMERO}            { return new Symbol(sym.NUM,yyline,yychar, yytext());} 
-<YYINITIAL>  AGRUPACION {
-	String string =  yytext().substring(1,yytext().length() - 1);
-        return (new Symbol(sym.AGRUPACION,yyline,yychar, yytext()));
-}
-<YYINITIAL> \#{CADENA} {
-	String string =  yytext().substring(1,yytext().length());
-        return (new Symbol(sym.COMENTARIO,yyline,yychar, yytext()));
-} 
-<YYINITIAL> {LETRA}({LETRA}|{NUMERO}|"_")*   { return new Symbol(sym.ID,yyline,yychar, new String (yytext()));}
+<YYINITIAL> {NUMERO}+           { return new Symbol(sym.NUM,yyline,yychar, yytext());} 
+<YYINITIAL> {VARIABLE}          { return new Symbol(sym.ID,yyline,yychar, new String (yytext()));}
 <YYINITIAL> {SALTO}             { /* IGNORAR */}
-<YYINITIAL> {BLANCO}           { /* IGNORAR */}
+<YYINITIAL> {BLANCO}            { /* IGNORAR */}
 <YYINITIAL> {ESPACIO}           { /* IGNORAR */}
 <YYINITIAL> "$"	{ return new Symbol(sym.IDE,yyline,yychar, yytext());}
 
@@ -59,8 +49,6 @@ AGRUPACION= [\"CADENA\" | \[CADENA] | \{CADENA\}]
 <YYINITIAL> "}"                 { return (new Symbol(sym.LLAVEC	,yyline,yychar, yytext()));}
 <YYINITIAL> ";" 		{ return new Symbol(sym.PC,yyline,yychar, yytext());}
 <YYINITIAL> ":" 		{ return new Symbol(sym.DP,yyline,yychar, yytext());}
-<YYINITIAL> "," 		{ return new Symbol(sym.COMA,yyline,yychar, yytext());}
-<YYINITIAL> "." 		{ return new Symbol(sym.PUNTO,yyline,yychar, yytext());}
 <YYINITIAL> "<"                 { return (new Symbol(sym.MENOR,yyline,yychar, yytext()));}
 <YYINITIAL> ">"                 { return (new Symbol(sym.MAYOR,yyline,yychar, yytext()));}
 <YYINITIAL> "<="                { return (new Symbol(sym.MENORIGUAL,yyline,yychar, yytext()));}
@@ -82,13 +70,13 @@ AGRUPACION= [\"CADENA\" | \[CADENA] | \{CADENA\}]
 <YYINITIAL> "ni"                { return (new Symbol(sym.NI,yyline,yychar, yytext()));}
 
 
-<YYINITIAL> [\n] 		{yychar=0;}
-<YYINITIAL>  (" "|\r|\t)+	{ }
+<YYINITIAL>  \"{CADENA}\"  {
+	String string =  yytext().substring(1,yytext().length() - 1);
+        return (new Symbol(sym.AGRUPACION,yyline,yychar, yytext()));
+}
+<YYINITIAL> \#{CADENA} {
+	String string =  yytext().substring(1,yytext().length());
+        return (new Symbol(sym.COMENTARIO,yyline,yychar, yytext()));
+} 
 
-.
-  { 
-    System.out.println("error lexico en "  + yyline + "," + yychar + " No se reconoce " + yytext());
-    yychar=0;
-  }
-  
   
