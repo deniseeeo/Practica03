@@ -32,6 +32,7 @@ terminal CORCIZQ;
 terminal PC;
 terminal DP;
 terminal NUM;
+terminal DECIMAL;
 terminal ID;
 terminal IDE;
 terminal COMENTARIO;    

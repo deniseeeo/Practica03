@@ -11,13 +11,15 @@ import java_cup.runtime.Symbol;
 %char  
 %cup
 
-NUMERO = [0-9]
-LETRA=[a-zA-Z]
+
 BLANCO=[\n\ \t\b]
 ESPACIO = [ \t]+
 SALTO = [\n]+
 CADENA= (\\\"|[^\n\"]|\\{BLANCO}+\\)*
 VARIABLE =({LETRA})({LETRA}|{NUMERO}|"_")*
+DECIMAL = [0-9]+("."[  |0-9]+)?
+NUMERO = [0-9]
+LETRA=[a-zA-Z]
 
 %%
 
@@ -35,6 +37,7 @@ VARIABLE =({LETRA})({LETRA}|{NUMERO}|"_")*
 <YYINITIAL> "if"                { return (new Symbol(sym.IF,yyline,yychar, yytext()));}
 <YYINITIAL> "return"            { return (new Symbol(sym.RETURN	,yyline,yychar, yytext()));}
 <YYINITIAL> {NUMERO}+           { return new Symbol(sym.NUM,yyline,yychar, yytext());} 
+<YYINITIAL> {DECIMAL}           { return new Symbol(sym.DECIMAL,yyline,yychar, yytext());} 
 <YYINITIAL> {VARIABLE}          { return new Symbol(sym.ID,yyline,yychar, new String (yytext()));}
 <YYINITIAL> {SALTO}             { /* IGNORAR */}
 <YYINITIAL> {BLANCO}            { /* IGNORAR */}

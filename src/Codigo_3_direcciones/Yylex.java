@@ -1,4 +1,5 @@
-package Analizador;
+package Codigo_3_direcciones;
+import Analizador.*;
 import java_cup.runtime.Symbol;
 
 
